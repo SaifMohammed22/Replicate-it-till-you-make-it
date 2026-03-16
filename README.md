@@ -1,4 +1,4 @@
-## <center>Replicate it till you make it</center>
+<h1 align='center'>Replicate it till you make it</h1>
 
 ### What's this repo about?
 
