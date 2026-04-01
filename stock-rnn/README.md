@@ -9,6 +9,6 @@ First, load the data from **fetch_data.py** by running:
 ```bash
 python3 fetch_data.py
 ```
-It will load 503 stock symbols and then fetch each symbol's stock price, starting from January 1, 1980, until the current date.
+It will load 503 stock symbols and then fetch each symbol's stock price, starting from January 1, 1980, until the current date (in my case March 29, 2026).
 
 >Note: It will take a couple of minutes to fetch all the data. 
