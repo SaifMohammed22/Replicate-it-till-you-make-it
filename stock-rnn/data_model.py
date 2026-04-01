@@ -39,19 +39,25 @@ class StockDataSet:
     def info(self):
         print(f"StockDataset {self.stock_symbol} train: {len(self.train_X)} test: {len(self.test_X)}")
         
-    def _prep_data(seq):
-        pass 
+    def _prep_data(self, seq):
+        """Split data into train and test with a specific test_ratio"""
+        seq = [np.array(seq[i * self.input_size: (i + 1) * self.input_size])
+               for i in range(len(seq) // self.input_size)]
+        
+        X = [seq[i: i + self.num_steps] for i in range(len(seq) - self.num_steps)]
+        y = [(seq[i + self.num_steps] for i in range(len(seq) - self.num_steps))]
 
+        train_size = int((1 - self.test_ratio) * len(X))
+        train_X, test_X = X[: train_size], X[train_size:]
+        train_y, test_y = y[: train_size], y[train_size:]
+
+        return train_X, test_X, train_y, test_y 
 
 if __name__ == "__main__":
-    stock = StockDataSet("A", close_price_only=False)
+    stock = StockDataSet("A", close_price_only=True)
     print(len(stock.raw_seq))
     print(stock.raw_seq[:10])
-
-    stock2 = StockDataSet("AAPL", close_price_only=True)
-    print(len(stock2.raw_seq))
-    print(stock2.raw_seq[:10])
-    print(type(stock2.raw_seq[0]))
+    print(len(stock.train_X), len(stock.test_X))
 
 
         
