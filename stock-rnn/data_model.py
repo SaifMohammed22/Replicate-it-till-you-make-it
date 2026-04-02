@@ -43,7 +43,11 @@ class StockDataSet:
         """Split data into train and test with a specific test_ratio"""
         seq = [np.array(seq[i * self.input_size: (i + 1) * self.input_size])
                for i in range(len(seq) // self.input_size)]
-        
+
+        if self.normalized:
+            seq = [seq[0] / seq[0][0] - 1.0] + [curr / seq[i][-1] - 1.0 for i, curr in enumerate(seq[1:])]
+
+        print(seq[0])
         X = [seq[i: i + self.num_steps] for i in range(len(seq) - self.num_steps)]
         y = [(seq[i + self.num_steps] for i in range(len(seq) - self.num_steps))]
 
@@ -53,11 +57,25 @@ class StockDataSet:
 
         return train_X, test_X, train_y, test_y 
 
+
+    def generate_one_epoch(self, batch_size):
+        """Divide the data into batch_X and batch_y"""
+        num_batches = int(len(self.train_X) // batch_size)
+        if batch_size * num_batches < len(self.train_X):
+            num_batches += 1
+
+        batch_indices = np.arange(num_batches)
+        random.shuffle(batch_indices)
+        for j in batch_indices:
+            batch_X = self.train_X[j * batch_size: (j + 1) * batch_size]
+            batch_y = self.train_y[j * batch_size: (j + 1) * batch_size]
+            assert set(len(x) for x in batch_X) == {self.num_steps}
+            yield batch_X, batch_y 
+
 if __name__ == "__main__":
     stock = StockDataSet("A", close_price_only=True)
     print(len(stock.raw_seq))
-    print(stock.raw_seq[:10])
     print(len(stock.train_X), len(stock.test_X))
-
-
+    batch_X, batch_y = next(iter(stock.generate_one_epoch(16)))
+    print(batch_X[0], len(batch_X), len(batch_X[0]))
         
