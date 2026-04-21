@@ -1,7 +1,6 @@
 """
 Make stock dataset out of the fetched data
 """
-import os
 import numpy as np
 import pandas as pd
 import random
@@ -25,7 +24,7 @@ class StockDataSet:
 
 
         # Read data
-        raw_df = pd.read_csv(f"stock-rnn/data/{self.stock_symbol}.csv")
+        raw_df = pd.read_csv(f"data/{self.stock_symbol}.csv")
 
 
         if self.close_price_only:
@@ -47,9 +46,8 @@ class StockDataSet:
         if self.normalized:
             seq = [seq[0] / seq[0][0] - 1.0] + [curr / seq[i][-1] - 1.0 for i, curr in enumerate(seq[1:])]
 
-        print(seq[0])
         X = [seq[i: i + self.num_steps] for i in range(len(seq) - self.num_steps)]
-        y = [(seq[i + self.num_steps] for i in range(len(seq) - self.num_steps))]
+        y = [seq[i + self.num_steps] for i in range(len(seq) - self.num_steps)]
 
         train_size = int((1 - self.test_ratio) * len(X))
         train_X, test_X = X[: train_size], X[train_size:]
@@ -67,8 +65,8 @@ class StockDataSet:
         batch_indices = np.arange(num_batches)
         random.shuffle(batch_indices)
         for j in batch_indices:
-            batch_X = self.train_X[j * batch_size: (j + 1) * batch_size]
-            batch_y = self.train_y[j * batch_size: (j + 1) * batch_size]
+            batch_X = self.train_X[j * batch_size: (j + 1) * batch_size] #[B, T, 1]
+            batch_y = self.train_y[j * batch_size: (j + 1) * batch_size] #[B, 1]
             assert set(len(x) for x in batch_X) == {self.num_steps}
             yield batch_X, batch_y 
 
@@ -77,5 +75,9 @@ if __name__ == "__main__":
     print(len(stock.raw_seq))
     print(len(stock.train_X), len(stock.test_X))
     batch_X, batch_y = next(iter(stock.generate_one_epoch(16)))
-    print(batch_X[0], len(batch_X), len(batch_X[0]))
+    print(len(batch_X), len(batch_X[0]))
+    print(len(batch_y))
+    print(batch_X[0])
+    print("*"*100)
+    print(batch_y)
         
